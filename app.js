@@ -3,6 +3,7 @@ const path = require('path')
 
 const LOG_DIR = './checkLog'
 const OUTPUT_DIR = './output'
+const totalIllegalCards = []
 
 if (!fs.existsSync(OUTPUT_DIR)) {
     fs.mkdirSync(OUTPUT_DIR)
@@ -31,6 +32,7 @@ logFiles.forEach(logFile => {
                 errDetail.message = jsonLog[i].message
                 errDetail.time = jsonLog[i].timestamp
                 illegalCards.push(errDetail)
+                totalIllegalCards.push(errDetail)
             }
         }
 
@@ -42,3 +44,19 @@ logFiles.forEach(logFile => {
         console.log('Transform log file failed:', error)
     }
 })
+
+const outputTotalPath = path.join(OUTPUT_DIR, 'totalIllegalCardsRecord.json')
+const filterIllegalCards = totalIllegalCards.reduce((acc, cur) => {
+    if (!acc[cur.Uid]) {
+        acc[cur.Uid] = {
+            times: 1,
+            date: [cur.time]
+        }
+    } else {
+        acc[cur.Uid].times++
+        acc[cur.Uid].date.push(cur.time)
+    }
+    return acc
+}, {})
+
+fs.writeFileSync(outputTotalPath, JSON.stringify(filterIllegalCards, null, 2))
