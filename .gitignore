@@ -1,4 +1,5 @@
 *.log
 *.json
+*.exe
 node_modules/
 .env

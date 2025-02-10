@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "pkg app.js --targets node16-win-x64 --output log-checker"
   },
   "keywords": [],
   "author": "",
