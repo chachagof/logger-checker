@@ -1,5 +1,6 @@
 const fs = require('fs')
 const path = require('path')
+const IllegalCardsController = require('./controller/illegalCards')
 
 const LOG_DIR = './checkLog'
 const OUTPUT_DIR = './output'
@@ -45,18 +46,4 @@ logFiles.forEach(logFile => {
     }
 })
 
-const outputTotalPath = path.join(OUTPUT_DIR, 'totalIllegalCardsRecord.json')
-const filterIllegalCards = totalIllegalCards.reduce((acc, cur) => {
-    if (!acc[cur.Uid]) {
-        acc[cur.Uid] = {
-            times: 1,
-            date: [cur.time]
-        }
-    } else {
-        acc[cur.Uid].times++
-        acc[cur.Uid].date.push(cur.time)
-    }
-    return acc
-}, {})
-
-fs.writeFileSync(outputTotalPath, JSON.stringify(filterIllegalCards, null, 2))
+IllegalCardsController.filterIllegalCards(totalIllegalCards, OUTPUT_DIR)
