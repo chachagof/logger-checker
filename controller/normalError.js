@@ -34,13 +34,14 @@ const normalErrorController = {
                         const title = errorType.error1
                         if (!normalError[title]) normalError[title] = {
                             times: 0,
-                            players: []
+                            players: {}
                         }
                         normalError[title].times++
                         let player
                         if (jsonLog[i].message.startsWith('unknow')) player = 'unknown'
                         else player = jsonLog[i].message.match(/(\d+)/)[0]
-                        normalError[title].players.push(player ? player : 'unknown')
+                        if (!normalError[title].players[player]) normalError[title].players[player] = 1
+                        else normalError[title].players[player]++
                     }
                     //low balance
                     else if (jsonLog[i].message === errorType.error2) {
