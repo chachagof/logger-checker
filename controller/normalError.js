@@ -40,8 +40,14 @@ const normalErrorController = {
                         let player
                         if (jsonLog[i].message.startsWith('unknow')) player = 'unknown'
                         else player = jsonLog[i].message.match(/(\d+)/)[0]
-                        if (!normalError[title].players[player]) normalError[title].players[player] = 1
-                        else normalError[title].players[player]++
+                        if (!normalError[title].players[player]) normalError[title].players[player] = {
+                            times: 1,
+                            date: [jsonLog[i].timestamp]
+                        }
+                        else {
+                            normalError[title].players[player].times++
+                            normalError[title].players[player].date.push(jsonLog[i].timestamp)
+                        }
                     }
                     //low balance
                     else if (jsonLog[i].message === errorType.error2) {
@@ -93,6 +99,18 @@ const normalErrorController = {
                         const content = jsonLog[i].message.match(/\[(.*?)\]/g)
                         normalError[title].Id.push(content[0])
                         normalError[title].cards.push(content[1])
+                    }
+                    else if (jsonLog[i].message.endsWith(errorType.error8)) {
+                        const title = errorType.error8
+                        if (!normalError[title]) normalError[title] = {
+                            players: {}
+                        }
+                        const player = jsonLog[i].message.match(/\d+/)
+                        if (!normalError[title].players[player]) normalError[title].players[player] = { times: 1, date: [jsonLog[i].timestamp] }
+                        else {
+                            normalError[title].players[player].times++
+                            normalError[title].players[player].date.push(jsonLog[i].timestamp)
+                        }
                     }
                     //else error
                     else {
