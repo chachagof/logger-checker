@@ -21,28 +21,53 @@ const InfoController = {
                 const jsonLog = logData.trim().split('\n').map(line => JSON.parse(line))
 
                 const infoData = {}
-                if (jsonLog[i].level === 'info') {
-                    if (jsonLog[i].message.endsWith("unexpected leave")) {
-                        const title = "unexpected leave"
-                        if (!infoData[title]) {
-                            infoData[title] = { players: {} }
-                        }
-                        const player = jsonLog[i].message.match(/\d+/)
-                        if (!infoData[title].players[player]) infoData[title].players[player] = { times: 1, date: [jsonLog[i].timestamp] }
-                        else {
-                            infoData[title].players[player].times++
-                            infoData[title].players[player].date.push(jsonLog[i].timestamp)
+                for (let i = 0; i < jsonLog.length; i++) {
+                    if (jsonLog[i].level === 'info' && InfoController.isValidJSON(jsonLog[i].message)) {
+                        let msg = JSON.parse(jsonLog[i].message)
+                        if (msg.Comment) {
+                            let pid = msg.Pid
+                            let bet = msg.Comment.endsWith('bet')
+                            let win = msg.Comment.endsWith('win')
+                            if (!infoData[pid]) {
+                                infoData[pid] = {
+                                    bet: 0,
+                                    win: 0
+                                }
+                            }
+
+                            if (bet) {
+                                infoData[pid].bet++
+                            } else if (win) {
+                                infoData[pid].win++
+                            }
                         }
                     }
                 }
 
-                fs.writeFileSync(outputPath, JSON.stringify(dullicateLog, null, 2))
+                let strangePerson = []
+                for (let [player, data] of Object.entries(infoData)) {
+                    if (data.bet < data.win) {
+                        strangePerson.push(player)
+                    }
+                }
+
+                infoData['strange'] = strangePerson
+
+                fs.writeFileSync(outputPath, JSON.stringify(infoData, null, 2))
 
                 console.log('Log file check done:', logFile)
             } catch (error) {
                 console.log('Transform log file failed:', error)
             }
         })
+    },
+    isValidJSON: (str) => {
+        try {
+            JSON.parse(str);
+            return true;
+        } catch (error) {
+            return false;
+        }
     }
 }
 
