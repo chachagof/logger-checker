@@ -28,6 +28,7 @@ const normalErrorController = {
                     //for error7 prepare
                     const error7Regexp = new RegExp(errorType.error7, 'g')
                     const error7 = jsonLog[i].message.match(error7Regexp)
+                    const error9regxp = new RegExp(errorType.error9, 'g')
 
                     //not expected disconnect
                     if (jsonLog[i].message.endsWith(errorType.error1)) {
@@ -102,6 +103,18 @@ const normalErrorController = {
                     }
                     else if (jsonLog[i].message.endsWith(errorType.error8)) {
                         const title = errorType.error8
+                        if (!normalError[title]) normalError[title] = {
+                            players: {}
+                        }
+                        const player = jsonLog[i].message.match(/\d+/)
+                        if (!normalError[title].players[player]) normalError[title].players[player] = { times: 1, date: [jsonLog[i].timestamp] }
+                        else {
+                            normalError[title].players[player].times++
+                            normalError[title].players[player].date.push(jsonLog[i].timestamp)
+                        }
+                    }
+                    else if (jsonLog[i].message.match(error9regxp)) {
+                        const title = errorType.error9title
                         if (!normalError[title]) normalError[title] = {
                             players: {}
                         }
